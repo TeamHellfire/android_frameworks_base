@@ -33,7 +33,6 @@ import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.hardware.input.InputManager;
-import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -128,6 +127,7 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
     private Drawable mBackIcon;
     private Drawable mBackAltIcon;
 
+    protected int mExpandedDesktopState;
     private int mPieTriggerSlots;
     private int mPieTriggerMask = PiePosition.LEFT.FLAG
             | PiePosition.BOTTOM.FLAG
@@ -201,8 +201,8 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
         mHandler.sendMessageDelayed(Message.obtain(mHandler, MSG_INJECT_KEY_UP, up), 30);
     }
 
-    private final class PieControlObserver extends ContentObserver {
-        PieControlObserver(Handler handler) {
+    private final class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
             super(handler);
         }
 
@@ -222,48 +222,6 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
                     Settings.System.EXPANDED_DESKTOP_STATE), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.EXPANDED_DESKTOP_STYLE), false, this);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            if (isEnabled()) {
-                // this is the only place pie controls gets enabled
-                setupContainer();
-                if (mSettingsObserver == null) {
-                    mSettingsObserver = new SettingsObserver(mHandler);
-                }
-                mSettingsObserver.observe();
-                mSettingsObserver.onChange(true, null);
-            } else {
-                if (mSettingsObserver != null) {
-                    mSettingsObserver.unobserve();
-                }
-                if (!isShowing()) {
-                    detachContainer();
-                } else {
-                    // delay detach to #onExit()
-                    mIsDetaching = true;
-                }
-            }
-        }
-    }
-    private PieControlObserver mPieControlObserver = new PieControlObserver(mHandler);
-
-    private final class SettingsObserver extends ContentObserver {
-        private final Uri mNavButtonsUri = Settings.System.getUriFor(
-                Settings.System.NAV_BUTTONS);
-        private final Uri mKillAppLongpressBackUri = Settings.Secure.getUriFor(
-                Settings.Secure.KILL_APP_LONGPRESS_BACK);
-
-        SettingsObserver(Handler handler) {
-            super(handler);
-        }
-
-        void observe() {
-            ContentResolver resolver = mContext.getContentResolver();
-            // trigger setupNavigationItems()
-            resolver.registerContentObserver(mNavButtonsUri, false, this);
-            resolver.registerContentObserver(mKillAppLongpressBackUri, false, this);
             // trigger setupListener()
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_POSITIONS), false, this);
@@ -271,21 +229,31 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
                     Settings.System.PIE_SENSITIVITY), false, this);
         }
 
-        void unobserve() {
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.unregisterContentObserver(this);
-        }
-
         @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            if (uri == null || mNavButtonsUri.equals(uri)
-                    || mKillAppLongpressBackUri.equals(uri)) {
-                setupNavigationItems();
+        public void onChange(boolean selfChange) {
+            ContentResolver resolver = mContext.getContentResolver();
+            boolean expanded = Settings.System.getInt(resolver,
+                    Settings.System.EXPANDED_DESKTOP_STATE, 0) == 1;
+            if (expanded) {
+                mExpandedDesktopState = Settings.System.getInt(resolver,
+                        Settings.System.EXPANDED_DESKTOP_STYLE, 0);
+            } else {
+                mExpandedDesktopState = 0;
             }
-            setupListener();
+            if (isEnabled()) {
+                setupContainer();
+                setupNavigationItems();
+                setupListener();
+            } else if (!isShowing()) {
+                detachContainer();
+            } else {
+                // delay detach to #onExit()
+                mIsDetaching = true;
+            }
         }
     }
-    private SettingsObserver mSettingsObserver;
+
+    private SettingsObserver mSettingsObserver = new SettingsObserver(mHandler);
 
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -331,10 +299,9 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
 
         mPieManager.setPieActivationListener(mPieActivationListener);
 
-        // start listening for pie control changes
-        // (this calls setupContainer, setupListener & setupNavigationItems if appropriate)
-        mPieControlObserver.observe();
-        mPieControlObserver.onChange(true);
+        // start listening for changes (calls setupListener & setupNavigationItems)
+        mSettingsObserver.observe();
+        mSettingsObserver.onChange(true);
     }
 
     public void attachStatusBar(BaseStatusBar statusBar) {
@@ -393,7 +360,6 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
         }
 
         mPieManager.updatePieActivationListener(mPieActivationListener, 0);
-        mPieActivationListener.restoreListenerState();
 
         if (mTelephonyManager != null) {
             mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
@@ -732,19 +698,10 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
     }
 
     public boolean isEnabled() {
-        ContentResolver resolver = mContext.getContentResolver();
-
-        int pie = Settings.System.getInt(resolver,
+        int pie = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.PIE_CONTROLS, 0);
-        boolean expanded = Settings.System.getInt(resolver,
-                Settings.System.EXPANDED_DESKTOP_STATE, 0) == 1;
 
-        if (pie != 0 && expanded) {
-            return (pie == 1 && Settings.System.getInt(resolver,
-                    Settings.System.EXPANDED_DESKTOP_STYLE, 0) != 0) || pie == 2;
-        } else {
-            return false;
-        }
+        return (pie == 1 && mExpandedDesktopState != 0) || pie == 2;
     }
 
     public String getOperatorState() {
