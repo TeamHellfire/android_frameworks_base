@@ -210,13 +210,9 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             ContentResolver resolver = mContext.getContentResolver();
             // trigger setupNavigationItems()
             resolver.registerContentObserver(Settings.System.getUriFor(
-<<<<<<< HEAD
                     Settings.System.PIE_COLORS), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.NAV_BUTTONS), false, this);
-=======
                     Settings.System.NAV_BUTTONS), false, this, UserHandle.USER_ALL);
->>>>>>> upstream/cm-10.1
             resolver.registerContentObserver(Settings.Secure.getUriFor(
                     Settings.Secure.KILL_APP_LONGPRESS_BACK), false, this, UserHandle.USER_ALL);
             // trigger setupContainer()
