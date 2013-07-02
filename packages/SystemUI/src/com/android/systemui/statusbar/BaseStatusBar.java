@@ -58,6 +58,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.PorterDuffXfermode;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -405,7 +408,6 @@ public abstract class BaseStatusBar extends SystemUI implements
                 mHalo = null;
             }
         }
->>>>>>> 0dc3c77... HALO (1/2)
     }
 
     public void userSwitched(int newUserId) {
