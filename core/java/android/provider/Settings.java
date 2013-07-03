@@ -2721,6 +2721,12 @@ public final class Settings {
         public static final String STATUS_BAR_AM_PM = "status_bar_am_pm";
 
         /**
+         * HALO enabled, should default to 0 (no, HALO is disabled)
+         * @hide
+         */
+        public static final String HALO_ENABLED = "halo_enabled";
+
+        /** 
          * HALO, should default to 0 (no, do not show)
          * @hide
          */
@@ -2906,6 +2912,12 @@ public final class Settings {
          * @hide
          */
         public static final String QUIET_HOURS_DIM = "quiet_hours_dim";
+                
+        /**
+         * Do you want popups/floating windows?
+         * @hide
+         */
+        public static final String WE_WANT_POPUPS = "we_want_popups"; 
 
         /**
          * Sets the lockscreen background style
