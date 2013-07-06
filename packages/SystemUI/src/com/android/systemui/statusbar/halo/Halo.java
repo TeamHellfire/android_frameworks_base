@@ -194,7 +194,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.HALO_COLORS), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.HALO_EFFECT_COLOR), false, this)
+                    Settings.System.HALO_EFFECT_COLOR), false, this);
         }
 
         @Override
