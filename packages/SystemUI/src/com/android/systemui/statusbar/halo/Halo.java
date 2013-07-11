@@ -53,6 +53,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.os.Vibrator;
@@ -140,6 +141,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
     private BaseStatusBar mBar;
     private WindowManager mWindowManager;
     private View mRoot;
+    private boolean mGone;
     private int mIconSize, mIconHalfSize;
     
     private boolean isBeingDragged = false;
@@ -195,18 +197,26 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                     Settings.System.HALO_COLORS), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.HALO_EFFECT_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.HALO_GONE), false, this);
         }
 
         @Override
-        public void onChange(boolean selfChange) {
+        public void onChange(boolean selfChange, Uri uri) {
             ContentResolver cr = mContext.getContentResolver();
 
             mEnableColor = Settings.System.getInt(cr,
                    Settings.System.HALO_COLORS, 0) == 1;
 
+            mGone = Settings.System.getInt(cr, Settings.System.HALO_GONE, 0) == 1;
+            if (uri.equals(Settings.System.getUriFor(Settings.System.HALO_GONE))) {
+                    if (mGone) {
+                        mEffect.setVisibility(mNotificationData.size() > 0 ? View.VISIBLE : View.GONE);
+                    }
+            } else {
             mInteractionReversed = Settings.System.getInt(cr, Settings.System.HALO_REVERSED, 1) == 1;
             mHideTicker = Settings.System.getInt(cr, Settings.System.HALO_HIDE, 0) == 1;
-            mHapticFeedback = Settings.System.getInt(cr, Settings.System.HAPTIC_FEEDBACK_ENABLED, 1) != 0;
+            mHapticFeedback = Settings.System.getInt(cr, Settings.System.HAPTIC_FEEDBACK_ENABLED, 1)
 
             if (!selfChange) {
                 mEffect.wake();
@@ -259,6 +269,10 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         mPaintHoloRed.setAntiAlias(true);
         mPaintHoloRed.setColor(0xffcc0000);
 
+        //Halo Gone
+        mGone = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.HALO_GONE, 0) == 1;
+
         // Create effect layer
         mEffect = new HaloEffect(mContext);
         mEffect.setLayerType (View.LAYER_TYPE_HARDWARE, null);
@@ -289,6 +303,10 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
 
         mKillX = mScreenWidth / 2;
         mKillY = mIconHalfSize;
+
+        if (mGone) {
+            mEffect.setVisibility(mNotificationData.size() > 0 ? View.VISIBLE : View.GONE);
+        } 
 
         if (!mFirstStart) {
             if (mEffect.getHaloY() < 0) mEffect.setHaloY(0);
@@ -349,6 +367,10 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         } else {
             clearTicker();
         }
+
+        if (mGone) {
+            mEffect.setVisibility(mNotificationData.size() > 0 ? View.VISIBLE : View.GONE);
+        } 
     }
 
     public void setStatusBar(BaseStatusBar bar) {
@@ -1063,7 +1085,9 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
 
     // This is the android ticker callback
     public void updateTicker(StatusBarNotification notification, String text) {
-
+        if (mGone) {
+            mEffect.setVisibility(mNotificationData.size() > 0 ? View.VISIBLE : View.GONE);
+        } 
         boolean allowed = false; // default off
         try {
             allowed = mNotificationManager.isPackageAllowedForHalo(notification.pkg);
