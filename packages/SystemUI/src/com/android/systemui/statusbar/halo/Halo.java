@@ -216,13 +216,14 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             } else {
             mInteractionReversed = Settings.System.getInt(cr, Settings.System.HALO_REVERSED, 1) == 1;
             mHideTicker = Settings.System.getInt(cr, Settings.System.HALO_HIDE, 0) == 1;
-            mHapticFeedback = Settings.System.getInt(cr, Settings.System.HAPTIC_FEEDBACK_ENABLED, 1)
+            mHapticFeedback = Settings.System.getInt(cr, Settings.System.HAPTIC_FEEDBACK_ENABLED, 1) != 0;
 
             if (!selfChange) {
                 mEffect.wake();
                 mEffect.ping(mPaintHoloBlue, HaloEffect.WAKE_TIME);
                 mEffect.nap(HaloEffect.SNAP_TIME + 1000);
                 if (mHideTicker) mEffect.sleep(HaloEffect.SNAP_TIME + HaloEffect.NAP_TIME + 2500, HaloEffect.SLEEP_TIME);
+                }
             }
         }
     }
