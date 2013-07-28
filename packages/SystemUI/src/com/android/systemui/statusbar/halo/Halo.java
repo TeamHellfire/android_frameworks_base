@@ -95,7 +95,7 @@ import android.widget.ScrollView;
 
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar.NotificationClicker;
-import com.android.internal.statusbar.StatusBarNotification;
+import android.service.notification.StatusBarNotification;
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.systemui.statusbar.StatusBarIconView;
 import com.android.systemui.statusbar.NotificationData;
@@ -344,11 +344,11 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             if (!includeCurrentDismissable) {
                 if (mNotificationData.size() > 1 && mLastNotificationEntry != null &&
                         mLastNotificationEntry.notification == mCurrentNotficationEntry.notification) {
-                    boolean cancel = (mLastNotificationEntry.notification.notification.flags &
+                    boolean cancel = (mLastNotificationEntry.notification.getNotification().flags &
                             Notification.FLAG_AUTO_CANCEL) == Notification.FLAG_AUTO_CANCEL;
                     if (cancel) mLastNotificationEntry = mNotificationData.get(mNotificationData.size() - 2);
                 } else if (mNotificationData.size() == 1) {
-                    boolean cancel = (mLastNotificationEntry.notification.notification.flags &
+                    boolean cancel = (mLastNotificationEntry.notification.getNotification().flags &
                             Notification.FLAG_AUTO_CANCEL) == Notification.FLAG_AUTO_CANCEL;
                     if (cancel) {
                         // We have one notification left and it is dismissable, clear it...
@@ -359,9 +359,9 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             }
 
             if (mLastNotificationEntry.notification != null
-                    && mLastNotificationEntry.notification.notification != null
-                    && mLastNotificationEntry.notification.notification.tickerText != null) {
-                mNotificationText = mLastNotificationEntry.notification.notification.tickerText.toString();
+                    && mLastNotificationEntry.notification.getNotification() != null
+                    && mLastNotificationEntry.notification.getNotification().tickerText != null) {
+                mNotificationText = mLastNotificationEntry.notification.getNotification().tickerText.toString(); 
             }
 
             tick(mLastNotificationEntry, "", 0, 0);
@@ -537,7 +537,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                                         && mCurrentNotficationEntry.notification == item.notification) {
                                     continue;
                                 }
-                                boolean cancel = (item.notification.notification.flags &
+                                boolean cancel = (item.notification.getNotification().flags &
                                         Notification.FLAG_AUTO_CANCEL) == Notification.FLAG_AUTO_CANCEL;
                                 if (cancel) {
                                     entry = item;
@@ -714,8 +714,8 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
 
                                     NotificationData.Entry entry = mNotificationData.get(mMarkerIndex);
                                     String text = "";
-                                    if (entry.notification.notification.tickerText != null) {
-                                        text = entry.notification.notification.tickerText.toString();
+                                if (entry.notification.getNotification().tickerText != null) {
+                                    text = entry.notification.getNotification().tickerText.toString(); 
                                     }
                                     tick(entry, text, 0, 250);
                                     mTaskIntent = entry.getFloatingIntent();
@@ -1060,7 +1060,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         }
 
         StatusBarNotification notification = entry.notification;
-        Notification n = notification.notification;
+        Notification n = notification.getNotification();
 
         // Deal with the intent
         mContentIntent = entry.getFloatingIntent();
@@ -1091,7 +1091,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         } 
         boolean allowed = false; // default off
         try {
-            allowed = mNotificationManager.isPackageAllowedForHalo(notification.pkg);
+            allowed = mNotificationManager.isPackageAllowedForHalo(notification.getPackageName());
         } catch (android.os.RemoteException ex) {
             // System is dead
         }
@@ -1102,7 +1102,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             if (entry.notification == notification) {
 
                 // No intent, no tick ...
-                if (entry.notification.notification.contentIntent == null) return;
+                if (entry.notification.getNotification().contentIntent == null) return;
 
                 mIsNotificationNew = true;
                 if (mLastNotificationEntry != null && notification == mLastNotificationEntry.notification) {

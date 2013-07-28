@@ -79,11 +79,14 @@ import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
+import com.android.internal.util.FastXmlSerializer;
 
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
@@ -228,6 +231,7 @@ public class NotificationManagerService extends INotificationManager.Stub
     private int readPolicy(AtomicFile file, String lookUpTag, HashSet<String> db) {
         return readPolicy(file, lookUpTag, db, null, 0);
     }
+
     private class NotificationListenerInfo implements DeathRecipient {
         INotificationListener listener;
         ComponentName component;
@@ -402,14 +406,6 @@ public class NotificationManagerService extends INotificationManager.Stub
     }
 
     Archive mArchive = new Archive();
-
-    private void loadBlockDb() {
-        synchronized(mBlockedPackages) {
-            if (mPolicyFile == null) {
-                File dir = new File("/data/system");
-                mPolicyFile = new AtomicFile(new File(dir, "notification_policy.xml"));
-
-                mBlockedPackages.clear();
 
     private int readPolicy(AtomicFile file, String lookUpTag, HashSet<String> db, String resultTag, int defaultResult) {
         int result = defaultResult;
@@ -590,7 +586,6 @@ public class NotificationManagerService extends INotificationManager.Stub
         }
     }
 
-    public boolean areNotificationsEnabledForPackage(String pkg) {
     /**
      * Use this when you just want to know if notifications are OK for this package.
      */
@@ -1541,9 +1536,11 @@ public class NotificationManagerService extends INotificationManager.Stub
 
         loadBlockDb();
         loadHaloBlockDb();
+
         mAppOps = (AppOpsManager)context.getSystemService(Context.APP_OPS_SERVICE);
 
         importOldBlockDb();
+
 
         mStatusBar = statusBar;
         statusBar.setNotificationCallbacks(mNotificationCallbacks);

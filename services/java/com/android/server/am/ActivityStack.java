@@ -1958,8 +1958,8 @@ final class ActivityStack {
                 mNoAnimActivities.add(r);
             } else {
                 mService.mWindowManager.prepareAppTransition(newTask && !r.floatingWindow
-                        ? WindowManagerPolicy.TRANSIT_TASK_OPEN
-                        : WindowManagerPolicy.TRANSIT_ACTIVITY_OPEN, keepCurTransition);
+                        ? AppTransition.TRANSIT_TASK_OPEN
+                        : AppTransition.TRANSIT_ACTIVITY_OPEN, keepCurTransition);
                 mNoAnimActivities.remove(r);
             }
             r.updateOptionsLocked(options);
@@ -3898,8 +3898,8 @@ final class ActivityStack {
             if (DEBUG_TRANSITION) Slog.v(TAG,
                     "Prepare close transition: finishing " + r);
             mService.mWindowManager.prepareAppTransition(endTask && !r.floatingWindow
-                    ? WindowManagerPolicy.TRANSIT_TASK_CLOSE
-                    : WindowManagerPolicy.TRANSIT_ACTIVITY_CLOSE, false);
+                    ? AppTransition.TRANSIT_TASK_CLOSE
+                    : AppTransition.TRANSIT_ACTIVITY_CLOSE, false);
     
             // Tell window manager to prepare for this one to be removed.
             mService.mWindowManager.setAppVisibility(r.appToken, false);
