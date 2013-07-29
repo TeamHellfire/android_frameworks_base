@@ -1114,7 +1114,7 @@ public abstract class BaseStatusBar extends SystemUI implements
         Canvas canvas = new Canvas(roundIcon);
         canvas.drawARGB(0, 0, 0, 0);
 
-        if (notif.largeIcon != null           
+        if (notif.largeIcon != null) {           
             Paint smoothingPaint = new Paint();
             smoothingPaint.setAntiAlias(true);
             smoothingPaint.setFilterBitmap(true);
@@ -1293,9 +1293,9 @@ public abstract class BaseStatusBar extends SystemUI implements
                 && notification.getScore() == oldNotification.getScore();
                 // score now encompasses/supersedes isOngoing()
         
-        boolean updateTicker = (notification.notification.tickerText != null
-                && !TextUtils.equals(notification.notification.tickerText,
-                        oldEntry.notification.notification.tickerText)) || mHaloActive;
+        boolean updateTicker = (notification.getNotification().tickerText != null
+                && !TextUtils.equals(notification.getNotification().tickerText,
+                        oldEntry.notification.getNotification().tickerText)) || mHaloActive;
         boolean isTopAnyway = isTopNotification(rowParent, oldEntry);
         if (contentsUnchanged && bigContentsUnchanged && (orderUnchanged || isTopAnyway)) {
             if (DEBUG) Slog.d(TAG, "reusing notification for key: " + key);
@@ -1307,7 +1307,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                     bigContentView.reapply(mContext, oldEntry.getLargeView(), mOnClickHandler);
                 }
                 // update contentIntent and floatingIntent
-                final PendingIntent contentIntent = notification.notification.contentIntent;
+                final PendingIntent contentIntent = notification.getNotification().contentIntent;
                 if (contentIntent != null) {
                     final View.OnClickListener listener = makeClicker(contentIntent,
                             notification.getPackageName(), notification.getTag(), notification.getId());
