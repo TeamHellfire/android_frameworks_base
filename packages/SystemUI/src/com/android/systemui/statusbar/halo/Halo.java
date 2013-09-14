@@ -975,7 +975,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
 
             if (getHaloContentAlpha() > 0.0f) {
                 state = canvas.save();
-                canvas.translate(x, getHaloContentY());
+                canvas.translate(x, y);
                 mHaloContentView.draw(canvas);
                 canvas.restoreToCount(state);
             }
