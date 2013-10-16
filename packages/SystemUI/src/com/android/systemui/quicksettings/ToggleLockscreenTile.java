@@ -3,8 +3,6 @@ package com.android.systemui.quicksettings;
 import android.app.KeyguardManager;
 import android.app.KeyguardManager.KeyguardLock;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,25 +13,25 @@ import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 
 @SuppressWarnings("deprecation")
-public class ToggleLockscreenTile extends QuickSettingsTile
-        implements OnSharedPreferenceChangeListener {
+public class ToggleLockscreenTile extends QuickSettingsTile {
 
+    private KeyguardLock mLock = null;
     private static final String KEY_DISABLED = "lockscreen_disabled";
 
-    private static KeyguardLock sLock = null;
-    private static int sLockTileCount = 0;
-    private static boolean sDisabledLockscreen = false;
+    private boolean mDisabledLockscreen;
 
     public ToggleLockscreenTile(Context context, QuickSettingsController qsc) {
         super(context, qsc);
+
+        mDisabledLockscreen = mPrefs.getBoolean(KEY_DISABLED, false);
 
         mOnClick = new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                sDisabledLockscreen = !sDisabledLockscreen;
-                mPrefs.edit().putBoolean(KEY_DISABLED, sDisabledLockscreen).apply();
-                updateLockscreenState();
+                mDisabledLockscreen = !mDisabledLockscreen;
+                mPrefs.edit().putBoolean(KEY_DISABLED, mDisabledLockscreen).apply();
+                updateResources();
             }
         };
 
@@ -49,23 +47,14 @@ public class ToggleLockscreenTile extends QuickSettingsTile
 
     @Override
     void onPostCreate() {
-        mPrefs.registerOnSharedPreferenceChangeListener(this);
-        if (sLockTileCount == 0) {
-            sDisabledLockscreen = mPrefs.getBoolean(KEY_DISABLED, false);
-            updateLockscreenState();
-        }
-        sLockTileCount++;
         updateTile();
         super.onPostCreate();
     }
 
     @Override
     public void onDestroy() {
-        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
-        sLockTileCount--;
-        if (sLock != null && sLockTileCount < 1 && sDisabledLockscreen) {
-            sLock.reenableKeyguard();
-            sLock = null;
+        if (mLock != null) {
+            mLock.reenableKeyguard();
         }
         super.onDestroy();
     }
@@ -78,27 +67,18 @@ public class ToggleLockscreenTile extends QuickSettingsTile
 
     private synchronized void updateTile() {
         mLabel = mContext.getString(R.string.quick_settings_lockscreen);
-        mDrawable = sDisabledLockscreen ?
-                R.drawable.ic_qs_lock_screen_off : R.drawable.ic_qs_lock_screen_on;
-    }
-
-    private void updateLockscreenState() {
-        if (sLock == null) {
+        if (mLock == null) {
             KeyguardManager keyguardManager = (KeyguardManager)
-                    mContext.getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
-            sLock = keyguardManager.newKeyguardLock("LockscreenTile");
+                    mContext.getSystemService(Context.KEYGUARD_SERVICE);
+            mLock = keyguardManager.newKeyguardLock("LockscreenTile");
         }
-        if (sDisabledLockscreen) {
-            sLock.disableKeyguard();
+        if (mDisabledLockscreen) {
+            mDrawable = R.drawable.ic_qs_lock_screen_off;
+            mLock.disableKeyguard();
         } else {
-            sLock.reenableKeyguard();
+            mDrawable = R.drawable.ic_qs_lock_screen_on;
+            mLock.reenableKeyguard();
         }
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (KEY_DISABLED.equals(key)) {
-            updateResources();
-        }
-    }
 }
