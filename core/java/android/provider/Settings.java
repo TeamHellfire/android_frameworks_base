@@ -18,6 +18,7 @@ package android.provider;
 
 import android.annotation.SdkConstant;
 import android.annotation.SdkConstant.SdkConstantType;
+import android.app.ActivityManagerNative;
 import android.app.SearchManager;
 import android.app.WallpaperManager;
 import android.content.ComponentName;
@@ -37,6 +38,7 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.DropBoxManager;
 import android.os.IBinder;
@@ -56,7 +58,6 @@ import com.android.internal.widget.ILockSettings;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 
 /**
  * The Settings provider contains global system-level device preferences.
@@ -1800,28 +1801,6 @@ public final class Settings {
         public static final String AUTO_BRIGHTNESS_TWILIGHT_ADJUSTMENT = "auto_brightness_twilight_adjustment";
 
         /**
-         * The keyboard brightness to be used while the screen is on.
-         * Valid value range is between 0 and {@link PowerManager#getMaximumKeyboardBrightness()}
-         * @hide
-         */
-        public static final String KEYBOARD_BRIGHTNESS = "keyboard_brightness";
-
-        /**
-         * The button brightness to be used while the screen is on or after a button press,
-         * depending on the value of {@link BUTTON_BACKLIGHT_TIMEOUT}.
-         * Valid value range is between 0 and {@link PowerManager#getMaximumButtonBrightness()}
-         * @hide
-         */
-        public static final String BUTTON_BRIGHTNESS = "button_brightness";
-
-        /**
-         * The time in ms to keep the button backlight on after pressing a button.
-         * A value of 0 will keep the buttons on for as long as the screen is on.
-         * @hide
-         */
-        public static final String BUTTON_BACKLIGHT_TIMEOUT = "button_backlight_timeout";
-
-        /**
          * Whether to enable the electron beam animation when turning screen off
          *
          * @hide */
@@ -2749,25 +2728,47 @@ public final class Settings {
         public static final String QS_COLLAPSE_PANEL = "qs_collapse_panel";
 
         /**
-         * Quick Settings Quick access ribbon
+         * Use the Notification Power Widget? (Who wouldn't!)
          *
          * @hide
          */
-        public static final String QS_QUICK_ACCESS = "qs_quick_access";
+        public static final String EXPANDED_VIEW_WIDGET = "expanded_view_widget";
 
         /**
-         * Quick Settings Quick access ribbon - linked layout
+         * Whether to hide the notification screen after clicking on a widget
+         * button
          *
          * @hide
          */
-        public static final String QS_QUICK_ACCESS_LINKED = "qs_quick_access_linked";
+        public static final String EXPANDED_HIDE_ONCHANGE = "expanded_hide_onchange";
 
         /**
-         * Quick Settings Ribbon Tiles to Use
+         * Hide scroll bar in power widget
          *
          * @hide
          */
-        public static final String QUICK_SETTINGS_RIBBON_TILES = "quick_settings_ribbon_tiles";
+        public static final String EXPANDED_HIDE_SCROLLBAR = "expanded_hide_scrollbar";
+
+        /**
+         * Haptic feedback in power widget
+         *
+         * @hide
+         */
+        public static final String EXPANDED_HAPTIC_FEEDBACK = "expanded_haptic_feedback";
+
+        /**
+         * Widget Buttons to Use
+         *
+         * @hide
+         */
+        public static final String WIDGET_BUTTONS = "expanded_widget_buttons";
+
+        /**
+         * Widget Buttons to Use - Tablet
+         *
+         * @hide
+         */
+        public static final String WIDGET_BUTTONS_TABLET = "expanded_widget_buttons_tablet";
 
         /**
          * Navigation controls to Use
@@ -2777,22 +2778,34 @@ public final class Settings {
         public static final String NAV_BUTTONS = "nav_buttons";
 
         /**
-        * Quick Settings - Custom Network Mode
+        * Notification Power Widget - Custom Brightness Mode
+        * @hide
+        */
+        public static final String EXPANDED_BRIGHTNESS_MODE = "expanded_brightness_mode";
+
+        /**
+        * Notification Power Widget - Custom Network Mode
         * @hide
         */
         public static final String EXPANDED_NETWORK_MODE = "expanded_network_mode";
 
         /**
-        * Quick Settings - Custom Screen Timeout
+        * Notification Power Widget - Custom Screen Timeout
         * @hide
         */
         public static final String EXPANDED_SCREENTIMEOUT_MODE = "expanded_screentimeout_mode";
 
         /**
-        * Quick Settings - Custom Ring Mode
+        * Notification Power Widget - Custom Ring Mode
         * @hide
         */
         public static final String EXPANDED_RING_MODE = "expanded_ring_mode";
+
+        /**
+        * Notification Power Widget - Custom Torch Mode
+        * @hide
+        */
+        public static final String EXPANDED_FLASH_MODE = "expanded_flash_mode";
 
         /**
         * AutoHide CombinedBar on tablets.
@@ -3017,13 +3030,10 @@ public final class Settings {
         public static final String LOCKSCREEN_LONG_MENU_ACTION = "lockscreen_long_menu_action";
 
          /**
-          * Lockscreen battery status visibility mode
-          * 0 = show if charging
-          * 1 = always show
-          * 2 = never show
+          * Always show the battery status on the lockscreen
           * @hide
           */
-        public static final String LOCKSCREEN_BATTERY_VISIBILITY = "lockscreen_always_show_battery";
+        public static final String LOCKSCREEN_ALWAYS_SHOW_BATTERY = "lockscreen_always_show_battery";
 
         /**
          * Show the pending notification counts as overlays on the status bar
@@ -3156,7 +3166,6 @@ public final class Settings {
           * 3 - Search
           * 4 - Voice search
           * 5 - In-app search
-          * 6 - Launch Camera
           * @hide
           */
          public static final String KEY_HOME_LONG_PRESS_ACTION = "key_home_long_press_action";
@@ -3225,21 +3234,6 @@ public final class Settings {
           * @hide
           */
          public static final String KEY_APP_SWITCH_LONG_PRESS_ACTION = "key_app_switch_long_press_action";
-
-         /**
-          * Action to perform when the Camera key is pressed. (Default is 0)
-          * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
-          * @hide
-          */
-         public static final String KEY_CAMERA_ACTION = "key_camera_action";
-
-         /**
-          * Action to perform when the Camera key is long-pressed. (Default is 6)
-          * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
-          * @hide
-          */
-         public static final String KEY_CAMERA_LONG_PRESS_ACTION = "key_camera_long_press_action";
-
 
         /**
          * Control the display of the action overflow button within app UI.
@@ -3381,7 +3375,7 @@ public final class Settings {
             POWER_MENU_SOUND_ENABLED,
             POWER_MENU_USER_ENABLED,
             LOCKSCREEN_VIBRATE_ENABLED,
-            LOCKSCREEN_BATTERY_VISIBILITY,
+            LOCKSCREEN_ALWAYS_SHOW_BATTERY,
             PHONE_BLACKLIST_ENABLED,
             PHONE_BLACKLIST_NOTIFY_ENABLED,
             PHONE_BLACKLIST_PRIVATE_NUMBER_MODE,
@@ -5211,7 +5205,7 @@ public final class Settings {
          * Whether newly installed apps should run with privacy guard by default
          * @hide
          */
-         public static final String PRIVACY_GUARD_DEFAULT = "privacy_guard_default";
+        public static final String PRIVACY_GUARD_DEFAULT = "privacy_guard_default";
 
         /**
          * This are the settings to be backed up.
@@ -5283,6 +5277,13 @@ public final class Settings {
          * @hide
          */
         public static final boolean isLocationProviderEnabledForUser(ContentResolver cr, String provider, int userId) {
+            try {
+                if (ActivityManagerNative.getDefault().isPrivacyGuardEnabledForProcess(Binder.getCallingPid())) {
+                    return false;
+                }
+            } catch (RemoteException e) {
+                // ignore
+            }
             String allowedProviders = Settings.Secure.getStringForUser(cr,
                     LOCATION_PROVIDERS_ALLOWED, userId);
             return TextUtils.delimitedStringContains(allowedProviders, ',', provider);
@@ -6412,7 +6413,7 @@ public final class Settings {
          * @hide
          */
         public static final String getBluetoothHeadsetPriorityKey(String address) {
-            return BLUETOOTH_HEADSET_PRIORITY_PREFIX + address.toUpperCase(Locale.ROOT);
+            return BLUETOOTH_HEADSET_PRIORITY_PREFIX + address.toUpperCase();
         }
 
         /**
@@ -6420,7 +6421,7 @@ public final class Settings {
          * @hide
          */
         public static final String getBluetoothA2dpSinkPriorityKey(String address) {
-            return BLUETOOTH_A2DP_SINK_PRIORITY_PREFIX + address.toUpperCase(Locale.ROOT);
+            return BLUETOOTH_A2DP_SINK_PRIORITY_PREFIX + address.toUpperCase();
         }
 
         /**
@@ -6428,7 +6429,7 @@ public final class Settings {
          * @hide
          */
         public static final String getBluetoothInputDevicePriorityKey(String address) {
-            return BLUETOOTH_INPUT_DEVICE_PRIORITY_PREFIX + address.toUpperCase(Locale.ROOT);
+            return BLUETOOTH_INPUT_DEVICE_PRIORITY_PREFIX + address.toUpperCase();
         }
 
         /**

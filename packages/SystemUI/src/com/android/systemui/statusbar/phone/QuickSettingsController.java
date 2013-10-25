@@ -121,14 +121,12 @@ public class QuickSettingsController {
     private BroadcastReceiver mReceiver;
     private ContentObserver mObserver;
     public PhoneStatusBar mStatusBarService;
-    private final String mSettingsString;
-    private boolean mHideLiveTiles;
 
     private InputMethodTile mIMETile;
 
     private static final int MSG_UPDATE_TILES = 1000;
 
-    public QuickSettingsController(Context context, QuickSettingsContainerView container, PhoneStatusBar statusBarService, String settings) {
+    public QuickSettingsController(Context context, QuickSettingsContainerView container, PhoneStatusBar statusBarService) {
         mContext = context;
         mContainerView = container;
         mHandler = new Handler() {
@@ -145,7 +143,6 @@ public class QuickSettingsController {
         };
         mStatusBarService = statusBarService;
         mQuickSettingsTiles = new ArrayList<QuickSettingsTile>();
-        mSettingsString = settings;
     }
 
     void loadTiles() {
@@ -186,7 +183,7 @@ public class QuickSettingsController {
         ContentResolver resolver = mContext.getContentResolver();
         LayoutInflater inflater = LayoutInflater.from(mContext);
         String tiles = Settings.System.getStringForUser(resolver,
-                mSettingsString, UserHandle.USER_CURRENT);
+                Settings.System.QUICK_SETTINGS_TILES, UserHandle.USER_CURRENT);
         if (tiles == null) {
             Log.i(TAG, "Default tiles being loaded");
             tiles = TextUtils.join(TILE_DELIMITER, TILES_DEFAULT);
@@ -275,10 +272,6 @@ public class QuickSettingsController {
                     dockBatteryLoaded = true;
                 }
             }
-        }
-
-        if (mHideLiveTiles) {
-            return;
         }
 
         // Load the dynamic tiles
@@ -450,15 +443,5 @@ public class QuickSettingsController {
         for (QuickSettingsTile t : mQuickSettingsTiles) {
             t.updateResources();
         }
-    }
-
-    public void setTileTitleVisibility(boolean visible) {
-        for (QuickSettingsTile t : mQuickSettingsTiles) {
-            t.setLabelVisibility(visible);
-        }
-    }
-
-    public void hideLiveTiles(boolean hide) {
-        mHideLiveTiles = hide;
     }
 }
