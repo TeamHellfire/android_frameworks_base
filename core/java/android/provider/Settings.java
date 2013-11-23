@@ -3256,6 +3256,11 @@ public final class Settings {
           * @hide
           */
          public static final String KEY_HOME_LONG_PRESS_ACTION = "key_home_long_press_action";
+         
+          /**
+          * @hide
+          */
+         public static final String DUAL_PANE_PREFS = "dual_pane_prefs";
 
          /**
           * Action to perform when the home key is double-tapped. (Default is 0)
