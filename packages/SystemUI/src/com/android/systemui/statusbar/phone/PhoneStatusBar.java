@@ -421,21 +421,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
     private final Runnable mAutohide = new Runnable() {
         @Override
         public void run() {
-            doAutoHide();
+            int requested = mSystemUiVisibility & ~STATUS_OR_NAV_TRANSIENT;
+            if (mSystemUiVisibility != requested) {
+                notifyUiVisibilityChanged(requested);
+            }
         }};
-
-    private final Runnable mUserAutohide = new Runnable() {
-        @Override
-        public void run() {
-            doAutoHide();
-        }};
-
-    private void doAutoHide() {
-        int requested = mSystemUiVisibility & ~STATUS_OR_NAV_TRANSIENT;
-        if (mSystemUiVisibility != requested) {
-            notifyUiVisibilityChanged(requested);
-        }
-    }
 
     @Override
     public void start() {
@@ -2205,8 +2195,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
             final int nbMode = mNavigationBarView == null ? -1 : computeBarMode(
                     oldVal, newVal, mNavigationBarView.getBarTransitions(),
                     View.NAVIGATION_BAR_TRANSIENT, View.NAVIGATION_BAR_TRANSLUCENT);
-            boolean sbModeChanged = sbMode != -1;
-            boolean nbModeChanged = nbMode != -1;
+            final boolean sbModeChanged = sbMode != -1;
+            final boolean nbModeChanged = nbMode != -1;
             boolean checkBarModes = false;
             if (sbModeChanged && sbMode != mStatusBarMode) {
                 mStatusBarMode = sbMode;
@@ -2219,16 +2209,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
             if (checkBarModes) {
                 checkBarModes();
             }
-
-            final boolean sbVisible = (newVal & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0
-                    || (newVal & View.STATUS_BAR_TRANSIENT) != 0;
-            final boolean nbVisible = (newVal & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0
-                    || (newVal & View.NAVIGATION_BAR_TRANSIENT) != 0;
-
-            sbModeChanged = sbModeChanged && sbVisible;
-            nbModeChanged = nbModeChanged && nbVisible;
-
-
             if (sbModeChanged || nbModeChanged) {
                 // update transient bar autohide
                 if (sbMode == MODE_SEMI_TRANSPARENT || nbMode == MODE_SEMI_TRANSPARENT) {
@@ -2236,8 +2216,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
                 } else {
                     cancelAutohide();
                 }
-            } else if (!sbVisible && !nbVisible) {
-                cancelAutohide();
             }
 
             // ready to unhide
@@ -2317,7 +2295,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
 
     private void suspendAutohide() {
         mHandler.removeCallbacks(mAutohide);
-        mHandler.removeCallbacks(mUserAutohide);
         mHandler.removeCallbacks(mCheckBarModes);
         mAutohideSuspended = (mSystemUiVisibility & STATUS_OR_NAV_TRANSIENT) != 0;
     }
@@ -2343,7 +2320,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
 
     private void userAutohide() {
         cancelAutohide();
-        mHandler.postDelayed(mUserAutohide, 350); // longer than app gesture -> flag clear
+        mHandler.postDelayed(mAutohide, 350); // longer than app gesture -> flag clear
     }
 
     private boolean areLightsOn() {
