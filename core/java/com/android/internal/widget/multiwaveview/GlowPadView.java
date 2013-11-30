@@ -1329,8 +1329,10 @@ public class GlowPadView extends View {
     }
 
     private String getTargetDescription(int index) {
-        if (mTargetDescriptions == null || mTargetDescriptions.isEmpty()
-                || index >= mTargetDescriptions.size()) {
+        if (mTargetDescriptionsResourceId == 0) {
+            return null;
+        }
+        if (mTargetDescriptions == null || mTargetDescriptions.isEmpty()) {
             mTargetDescriptions = loadDescriptions(mTargetDescriptionsResourceId);
             if (mTargetDrawables.size() != mTargetDescriptions.size()) {
                 if (DEBUG) Log.v(TAG, "The number of target drawables must be"
@@ -1342,8 +1344,10 @@ public class GlowPadView extends View {
     }
 
     private String getDirectionDescription(int index) {
-        if (mDirectionDescriptions == null || mDirectionDescriptions.isEmpty()
-                || index >= mDirectionDescriptions.size()) {
+        if (mDirectionDescriptionsResourceId == 0) {
+            return null;
+        }
+        if (mDirectionDescriptions == null || mDirectionDescriptions.isEmpty()) {
             mDirectionDescriptions = loadDescriptions(mDirectionDescriptionsResourceId);
             if (mTargetDrawables.size() != mDirectionDescriptions.size()) {
                 if (DEBUG) Log.v(TAG, "The number of target drawables must be"

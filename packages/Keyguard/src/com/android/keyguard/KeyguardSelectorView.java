@@ -116,7 +116,7 @@ if (mStoredTargets == null) {
                     String targetUri = realTarget < mStoredTargets.length
                             ? mStoredTargets[realTarget] : null;
 
-                    if (GlowPadView.EMPTY_TARGET.equals(targetUri)) {
+                    if (LockscreenTargetUtils.EMPTY_TARGET.equals(targetUri)) {
                         mCallback.dismiss(false);
                     } else {
                         try {
@@ -261,30 +261,33 @@ if (mStoredTargets == null) {
         String storedTargets = Settings.System.getStringForUser(mContext.getContentResolver(),
                 Settings.System.LOCKSCREEN_TARGETS, UserHandle.USER_CURRENT);
         if (storedTargets == null) {
-        // Update the search icon with drawable from the search .apk
-        if (!mSearchDisabled) {
-            Intent intent = ((SearchManager) mContext.getSystemService(Context.SEARCH_SERVICE))
-                    .getAssistIntent(mContext, false, UserHandle.USER_CURRENT);
-            if (intent != null) {
-                // XXX Hack. We need to substitute the icon here but haven't formalized
-                // the public API. The "_google" metadata will be going away, so
-                // DON'T USE IT!
-                ComponentName component = intent.getComponent();
-                boolean replaced = mGlowPadView.replaceTargetDrawablesIfPresent(component,
-                        ASSIST_ICON_METADATA_NAME + "_google", R.drawable.ic_action_assist_generic);
+            // Update the search icon with drawable from the search .apk
+            if (!mSearchDisabled) {
+                Intent intent = ((SearchManager) mContext.getSystemService(Context.SEARCH_SERVICE))
+                        .getAssistIntent(mContext, false, UserHandle.USER_CURRENT);
+                if (intent != null) {
+                    // XXX Hack. We need to substitute the icon here but haven't formalized
+                    // the public API. The "_google" metadata will be going away, so
+                    // DON'T USE IT!
+                    ComponentName component = intent.getComponent();
+                    boolean replaced = mGlowPadView.replaceTargetDrawablesIfPresent(component,
+                            ASSIST_ICON_METADATA_NAME + "_google", R.drawable.ic_action_assist_generic);
 
-                if (!replaced && !mGlowPadView.replaceTargetDrawablesIfPresent(component,
+                    if (!replaced && !mGlowPadView.replaceTargetDrawablesIfPresent(component,
                             ASSIST_ICON_METADATA_NAME, R.drawable.ic_action_assist_generic)) {
                         Slog.w(TAG, "Couldn't grab icon from package " + component);
+                    }
                 }
             }
-        }
 
-        mGlowPadView.setEnableTarget(R.drawable.ic_lockscreen_camera, !mCameraDisabled);
-        mGlowPadView.setEnableTarget(R.drawable.ic_action_assist_generic, !mSearchDisabled);
+            mGlowPadView.setEnableTarget(R.drawable.ic_lockscreen_camera, !mCameraDisabled);
+            mGlowPadView.setEnableTarget(R.drawable.ic_action_assist_generic, !mSearchDisabled);
 
-        // Enable magnetic targets
-        mGlowPadView.setMagneticTargets(true);
+            // Enable magnetic targets
+            mGlowPadView.setMagneticTargets(true);
+
+            mGlowPadView.setTargetDescriptionsResourceId(R.array.lockscreen_target_descriptions_unlock_only);
+            mGlowPadView.setDirectionDescriptionsResourceId(R.array.lockscreen_direction_descriptions);
         } else {
             mStoredTargets = storedTargets.split("\\|");
             ArrayList<TargetDrawable> storedDrawables = new ArrayList<TargetDrawable>();
@@ -319,7 +322,7 @@ if (mStoredTargets == null) {
                 }
 
                 String uri = mStoredTargets[i];
-                if (uri.equals(GlowPadView.EMPTY_TARGET)) {
+                if (uri.equals(LockscreenTargetUtils.EMPTY_TARGET)) {
                     Drawable d = LockscreenTargetUtils.getLayeredDrawable(
                             mContext, unlockActiveDrawable, blankInActiveDrawable,
                             LockscreenTargetUtils.getInsetForIconType(mContext, null), true);
@@ -334,25 +337,28 @@ if (mStoredTargets == null) {
                     boolean frontBlank = false;
                     String type = null;
 
-                    if (intent.hasExtra(GlowPadView.ICON_FILE)) {
-                        type = GlowPadView.ICON_FILE;
+                    if (intent.hasExtra(LockscreenTargetUtils.ICON_FILE)) {
+                        type = LockscreenTargetUtils.ICON_FILE;
                         front = LockscreenTargetUtils.getDrawableFromFile(mContext,
-                                intent.getStringExtra(GlowPadView.ICON_FILE));
-                    } else if (intent.hasExtra(GlowPadView.ICON_RESOURCE)) {
-                        String source = intent.getStringExtra(GlowPadView.ICON_RESOURCE);
-                        String packageName = intent.getStringExtra(GlowPadView.ICON_PACKAGE);
+                                intent.getStringExtra(LockscreenTargetUtils.ICON_FILE));
+                    } else if (intent.hasExtra(LockscreenTargetUtils.ICON_RESOURCE)) {
+                        String source = intent.getStringExtra(LockscreenTargetUtils.ICON_RESOURCE);
+                        String packageName = intent.getStringExtra(LockscreenTargetUtils.ICON_PACKAGE);
 
                         if (source != null) {
                             front = LockscreenTargetUtils.getDrawableFromResources(mContext,
                                     packageName, source, false);
                             back = LockscreenTargetUtils.getDrawableFromResources(mContext,
                                     packageName, source, true);
-                            type = GlowPadView.ICON_RESOURCE;
+                            type = LockscreenTargetUtils.ICON_RESOURCE;
                             frontBlank = true;
                         }
                     }
-                    if (front == null || back == null) {
+                    if (front == null) {
                         front = LockscreenTargetUtils.getDrawableFromIntent(mContext, intent);
+                    }
+                    if (back == null) {
+                        back = activeBack;
                     }
 
                     int inset = LockscreenTargetUtils.getInsetForIconType(mContext, type);
@@ -375,6 +381,8 @@ if (mStoredTargets == null) {
                 }
             }
 
+            mGlowPadView.setTargetDescriptionsResourceId(0);
+            mGlowPadView.setDirectionDescriptionsResourceId(0);
             mGlowPadView.setTargetResources(storedDrawables);
         }
     }

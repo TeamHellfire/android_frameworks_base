@@ -49,6 +49,39 @@ import java.io.File;
 public final class LockscreenTargetUtils {
     private static final String TAG = "LockscreenTargetUtils";
 
+    /**
+     * @hide
+     */
+    public final static String ICON_RESOURCE = "icon_resource";
+
+    /**
+     * @hide
+     */
+    public final static String ICON_PACKAGE = "icon_package";
+
+    /**
+     * @hide
+     */
+    public final static String ICON_FILE = "icon_file";
+
+    /**
+     * Number of customizable lockscreen targets for tablets
+     * @hide
+     */
+    public final static int MAX_TABLET_TARGETS = 7;
+
+    /**
+     * Number of customizable lockscreen targets for phones
+     * @hide
+     */
+    public final static int MAX_PHONE_TARGETS = 4;
+
+    /**
+     * Empty target used to reference unused lockscreen targets
+     * @hide
+     */
+    public final static String EMPTY_TARGET = "empty";
+
     private LockscreenTargetUtils() {
     }
 
@@ -62,10 +95,10 @@ public final class LockscreenTargetUtils {
 
     public static int getMaxTargets(Context context) {
         if (isScreenLarge(context)) {
-            return GlowPadView.MAX_TABLET_TARGETS;
+            return MAX_TABLET_TARGETS;
         }
 
-        return GlowPadView.MAX_PHONE_TARGETS;
+        return MAX_PHONE_TARGETS;
     }
 
     public static int getTargetOffset(Context context) {
@@ -143,7 +176,7 @@ public final class LockscreenTargetUtils {
     }
 
     public static int getInsetForIconType(Context context, String type) {
-        if (TextUtils.equals(type, GlowPadView.ICON_RESOURCE)) {
+        if (TextUtils.equals(type, ICON_RESOURCE)) {
             return 0;
         }
 
@@ -154,7 +187,7 @@ public final class LockscreenTargetUtils {
             Resources res = packageContext.getResources();
             int targetInsetIdentifier = res.getIdentifier("lockscreen_target_inset", "dimen", "com.android.keyguard");
             inset = res.getDimensionPixelSize(targetInsetIdentifier);
-            if (TextUtils.equals(type, GlowPadView.ICON_FILE)) {
+            if (TextUtils.equals(type, ICON_FILE)) {
                 int targetIconFileInsetIdentifier = res.getIdentifier(
                     "lockscreen_target_icon_file_inset", "dimen", "com.android.keyguard");
                 inset += res.getDimensionPixelSize(targetIconFileInsetIdentifier);
