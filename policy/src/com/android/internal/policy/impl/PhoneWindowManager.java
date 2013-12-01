@@ -668,14 +668,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
 
         @Override public void onChange(boolean selfChange) {
-            // A settings update potentially means triggering a configuration change,
-            // which we don't want to do during a window animation
-            if (mAnimatingWindows) {
-                mNeedUpdateSettings = true;
-            } else {
-                updateSettings();
-                updateRotation(false);
-            }
+            updateSettings();
+            updateRotation(false);
         }
     }
 
@@ -3850,7 +3844,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     private int updateSystemUiVisibilityFlagsForExpandedDesktop(int vis) {
         if (expandedDesktopHidesNavigationBar()) {
-            vis |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            if ((vis & View.SYSTEM_UI_FLAG_SHOW_NAVIGATION_IN_EXPANDED_DESKTOP) == 0) {
+                vis |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            }
         }
         if (expandedDesktopHidesStatusBar()) {
             vis |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -5918,21 +5914,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             return (windowType == WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG);
         }
         return true;
-    }
-
-    @Override
-    public void windowAnimationStarted() {
-        mAnimatingWindows = true;
-    }
-
-    @Override
-    public void windowAnimationFinished() {
-        mAnimatingWindows = false;
-        if (mNeedUpdateSettings) {
-            updateSettings();
-            updateRotation(false);
-            mNeedUpdateSettings = false;
-        }
     }
 
     @Override
