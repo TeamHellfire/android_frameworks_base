@@ -83,7 +83,7 @@ public class PlatLogoActivity extends Activity {
         letter.setTextSize(mIsCid ? 150 : 300);
         letter.setTextColor(0xFFFFFFFF);
         letter.setGravity(Gravity.CENTER);
-        letter.setText(mIsCid ? "CM" : String.valueOf(Build.ID).substring(0, 1));
+        letter.setText(mIsCid ? "HF" : String.valueOf(Build.ID).substring(0, 1));
 
         String cmVersion = SystemProperties.get("ro.cm.version");
         if (cmVersion != null) {
@@ -101,7 +101,7 @@ public class PlatLogoActivity extends Activity {
         if (!mIsCid) {
             tv.setTransformationMethod(new AllCapsTransformationMethod(this));
         }
-        tv.setText(mIsCid ? "CyanogenMod " + cmVersion : "Android " + Build.VERSION.RELEASE);
+        tv.setText(mIsCid ? "HellFire™ " + cmVersion : "Android " + Build.VERSION.RELEASE);
         tv.setVisibility(View.INVISIBLE);
 
         mContent.addView(bg);
