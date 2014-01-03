@@ -656,6 +656,7 @@ public class BatteryMeterView extends View implements DemoMode {
             }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             BatteryTracker tracker = mDemoMode ? mDemoTracker : mTracker;
 
             int offset = tracker.plugged ? mAnimOffset : 0;
@@ -665,6 +666,10 @@ public class BatteryMeterView extends View implements DemoMode {
             updateChargeAnim(tracker);
             drawCircle(c, tracker, mTextX, mRectLeft);
 >>>>>>> upstream/cm-11.0
+=======
+            updateChargeAnim(tracker);
+            drawCircle(c, tracker, mTextX, mRectLeft);
+>>>>>>> origin/cm-11.0
         }
 
         @Override
@@ -698,16 +703,22 @@ public class BatteryMeterView extends View implements DemoMode {
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         private void drawCircle(Canvas canvas, BatteryTracker tracker, int animOffset,
                 float textX, RectF drawRect) {
             boolean unknownStatus = tracker.status == BatteryManager.BATTERY_STATUS_UNKNOWN;
 =======
+=======
+>>>>>>> origin/cm-11.0
         private void drawCircle(Canvas canvas, BatteryTracker tracker,
                 float textX, RectF drawRect) {
             boolean unknownStatus = tracker.status == BatteryManager.BATTERY_STATUS_UNKNOWN;
             int animOffset = tracker.shouldIndicateCharging() ? mAnimOffset : 0;
             int level = tracker.level;
+<<<<<<< HEAD
 >>>>>>> upstream/cm-11.0
+=======
+>>>>>>> origin/cm-11.0
             Paint paint;
 
             int level = tracker.level;
@@ -771,10 +782,14 @@ public class BatteryMeterView extends View implements DemoMode {
          */
         private void updateChargeAnim(BatteryTracker tracker) {
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (!tracker.plugged) {
 =======
             if (!tracker.shouldIndicateCharging()) {
 >>>>>>> upstream/cm-11.0
+=======
+            if (!tracker.shouldIndicateCharging()) {
+>>>>>>> origin/cm-11.0
                 if (mIsAnimating) {
                     mIsAnimating = false;
                     mAnimOffset = 0;
