@@ -696,7 +696,6 @@ public class BatteryMeterView extends View implements DemoMode {
             int level = tracker.level;
             Paint paint;
 
-            int level = tracker.level;
             if (unknownStatus) {
                 paint = mBackPaint;
                 level = 100; // Draw all the circle;
