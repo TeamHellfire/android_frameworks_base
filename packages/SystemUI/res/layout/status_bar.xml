@@ -73,6 +73,25 @@
             android:orientation="horizontal"
             >
 
+           <com.android.systemui.statusbar.policy.Traffic
+                android:id="@+id/traffic"
+                android:textAppearance="@style/TextAppearance.StatusBar.Traffic"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="2dp"
+                android:gravity="left|center_vertical"
+                />
+
+            <com.android.systemui.statusbar.phone.CarrierLabel
+                android:id="@+id/status_bar_carrier_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textAppearance="@style/TextAppearance.StatusBar.CarrierLabel"
+                android:singleLine="true"
+                android:ellipsize="end"
+                />
+
             <LinearLayout android:id="@+id/statusIcons"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
