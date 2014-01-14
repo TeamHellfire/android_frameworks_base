@@ -3273,6 +3273,16 @@ public final class Settings {
          */
         public static final String POWER_MENU_SOUND_ENABLED = "power_menu_silent_enabled";
 
+         /**
+         * Electronic beam animation mode
+         * 0 = off,
+         * 1 = always horizontal,
+         * 2 = always vertical,
+         * 3 = dependent on orientation
+         * @hide
+         */
+        public static final String SYSTEM_POWER_CRT_MODE = "system_power_crt_mode";
+
         /**
           * Swap volume buttons when the screen is rotated
           * 0 - Disabled
