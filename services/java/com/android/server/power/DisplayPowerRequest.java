@@ -67,9 +67,6 @@ final class DisplayPowerRequest {
     // potentially higher CPU usage and flicker.
     public float responsitivityFactor;
 
-    // HellFire settings - override config for ElectronBeam mode
-    public int electronBeamMode;
-
     public DisplayPowerRequest() {
         screenState = SCREEN_STATE_BRIGHT;
         useProximitySensor = false;
@@ -77,7 +74,6 @@ final class DisplayPowerRequest {
         screenAutoBrightnessAdjustment = 0.0f;
         useAutoBrightness = false;
         blockScreenOn = false;
-        electronBeamMode = 0;
         responsitivityFactor = 1.0f;
     }
 
@@ -92,7 +88,6 @@ final class DisplayPowerRequest {
         screenAutoBrightnessAdjustment = other.screenAutoBrightnessAdjustment;
         useAutoBrightness = other.useAutoBrightness;
         blockScreenOn = other.blockScreenOn;
-        electronBeamMode = other.electronBeamMode;
         responsitivityFactor = other.responsitivityFactor;
     }
 
@@ -110,7 +105,6 @@ final class DisplayPowerRequest {
                 && screenAutoBrightnessAdjustment == other.screenAutoBrightnessAdjustment
                 && useAutoBrightness == other.useAutoBrightness
                 && blockScreenOn == other.blockScreenOn
-                && electronBeamMode == other.electronBeamMode
                 && Math.abs(responsitivityFactor - other.responsitivityFactor) < 1E-6;
     }
 
@@ -127,7 +121,6 @@ final class DisplayPowerRequest {
                 + ", screenAutoBrightnessAdjustment=" + screenAutoBrightnessAdjustment
                 + ", useAutoBrightness=" + useAutoBrightness
                 + ", blockScreenOn=" + blockScreenOn
-                + ", electronBeamMode=" + electronBeamMode;
                 + ", responsitivityFactor=" + responsitivityFactor;
     }
 }
