@@ -3392,17 +3392,6 @@ public final class Settings {
          */
         public static final String KEY_HOME_LONG_PRESS_ACTION = "key_home_long_press_action";
 
-         /**
-          * Action to perform when the home key is long-pressed. (Default is 2)
-          * 0 - Nothing
-          * 1 - Menu
-          * 2 - App-switch
-          * 3 - Search
-          * 4 - Voice search
-          * 5 - In-app search
-          * @hide
-          */
-         public static final String KEY_HOME_LONG_PRESS_ACTION = "key_home_long_press_action";
          
           /**
           * @hide
