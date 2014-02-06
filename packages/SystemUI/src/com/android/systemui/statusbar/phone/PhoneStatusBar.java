@@ -2903,6 +2903,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         public void onClick(View v) {
             startActivityDismissingKeyguard(
                     new Intent(Intent.ACTION_QUICK_CLOCK), true); // have fun, everyone
+        }
+    };
 
     private View.OnClickListener mAddTileButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
