@@ -40,13 +40,13 @@ import android.content.res.AssetManager;
 import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
 import android.content.res.CustomTheme;
-import android.content.res.PackageRedirectionMap;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDebug;
 import android.database.sqlite.SQLiteDebug.DbStats;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Typeface;
 import android.hardware.display.DisplayManagerGlobal;
 import android.net.IConnectivityManager;
 import android.net.Proxy;
@@ -1538,11 +1538,11 @@ public final class ActivityThread {
     /**
      * Creates the top level resources for the given package.
      */
-    Resources getTopLevelResources(String resDir,
+    Resources getTopLevelResources(String resDir, String[] overlayDirs,
             int displayId, Configuration overrideConfiguration,
-            LoadedApk pkgInfo) {
-        return mResourcesManager.getTopLevelResources(resDir, displayId, overrideConfiguration,
-                pkgInfo.getCompatibilityInfo(), null);
+            LoadedApk pkgInfo, Context context) {
+        return mResourcesManager.getTopLevelResources(resDir, overlayDirs, displayId, pkgInfo.mPackageName,
+                overrideConfiguration, pkgInfo.getCompatibilityInfo(), null, context);
     }
 
     final Handler getHandler() {
@@ -3968,8 +3968,10 @@ public final class ActivityThread {
         if (configDiff != 0) {
             // Ask text layout engine to free its caches if there is a locale change
             boolean hasLocaleConfigChange = ((configDiff & ActivityInfo.CONFIG_LOCALE) != 0);
-            if (hasLocaleConfigChange) {
+            boolean hasThemeConfigChange = ((configDiff & ActivityInfo.CONFIG_THEME_RESOURCE) != 0);
+            if (hasLocaleConfigChange || hasThemeConfigChange) {
                 Canvas.freeTextLayoutCaches();
+                Typeface.recreateDefaults();
                 if (DEBUG_CONFIGURATION) Slog.v(TAG, "Cleared TextLayout Caches");
             }
         }
@@ -4205,23 +4207,28 @@ public final class ActivityThread {
 
         Log.d(TAG, "handleBindApplication:" + data.processName );
 
+        String runtime = VMRuntime.getRuntime().vmLibrary();
+
         String str  = SystemProperties.get("dalvik.vm.heaptargetutilization", "" );
         if( !str.equals("") ){
             float heapUtil = Float.valueOf(str.trim()).floatValue();
             VMRuntime.getRuntime().setTargetHeapUtilization(heapUtil);
             Log.d(TAG, "setTargetHeapUtilization:" + heapUtil );
         }
-        String heapMinFree = SystemProperties.get("dalvik.vm.heapminfree", "" );
-        int minfree =  parseMemOption(heapMinFree);
-        if( minfree > 0){
-            VMRuntime.getRuntime().setTargetHeapMinFree(minfree);
-            Log.d(TAG, "setTargetHeapMinFree:" + minfree );
-        }
-        String heapConcurrentStart  = SystemProperties.get("dalvik.vm.heapconcurrentstart", "" );
-        int concurr_start =  parseMemOption(heapConcurrentStart);
-        if( concurr_start > 0){
-            VMRuntime.getRuntime().setTargetHeapConcurrentStart(concurr_start);
-            Log.d(TAG, "setTargetHeapConcurrentStart:" + concurr_start );
+        // ART currently doesn't support these methods
+        if (runtime.equals("libdvm.so")) {
+            String heapMinFree = SystemProperties.get("dalvik.vm.heapminfree", "" );
+            int minfree =  parseMemOption(heapMinFree);
+            if( minfree > 0){
+                VMRuntime.getRuntime().setTargetHeapMinFree(minfree);
+                Log.d(TAG, "setTargetHeapMinFree:" + minfree );
+            }
+            String heapConcurrentStart  = SystemProperties.get("dalvik.vm.heapconcurrentstart", "" );
+            int concurr_start =  parseMemOption(heapConcurrentStart);
+            if( concurr_start > 0){
+                VMRuntime.getRuntime().setTargetHeapConcurrentStart(concurr_start);
+                Log.d(TAG, "setTargetHeapConcurrentStart:" + concurr_start );
+            }
         }
 
         ////
