@@ -769,7 +769,8 @@ public class BatteryMeterView extends View implements DemoMode {
          * @param tracker The battery information
          */
         private void updateChargeAnim(BatteryTracker tracker) {
-            if (!tracker.shouldIndicateCharging()) {
+            if (!tracker.shouldIndicateCharging()
+                    || tracker.status == BatteryManager.BATTERY_STATUS_FULL) {
                 if (mIsAnimating) {
                     mIsAnimating = false;
                     mAnimOffset = 0;
