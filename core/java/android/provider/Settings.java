@@ -2774,6 +2774,13 @@ public final class Settings {
         public static final String EGG_MODE = "egg_mode";
 
         /**
+         * Global stats collection
+         *
+         * @hide
+         */
+        public static final String STATS_COLLECTION = "stats_collection";
+
+        /**
          * Quick Settings Panel Tiles to Use
          *
          * @hide
@@ -3072,10 +3079,11 @@ public final class Settings {
                 "status_bar_battery_show_percent";
 
         /**
-         * Whether to show the clock in status bar
-         * of the stock battery icon
+         * Whether to hide the clock, show it in the default
+         * position or show it in the center
          * 0: don't show the clock
-         * 1: show the clock
+         * 1: show the clock in the default position
+         * 2: show the clock in the center
          * default: 1
          * @hide
          */
