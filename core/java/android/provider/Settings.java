@@ -2943,6 +2943,13 @@ public final class Settings {
         public static final String QS_QUICK_ACCESS = "qs_quick_access";
 
         /**
+         * Quick Settings Quick access ribbon - size
+         *
+         * @hide
+         */
+        public static final String QS_QUICK_ACCESS_SIZE = "qs_quick_access_size";
+
+        /**
          * Quick Settings Quick access ribbon - linked layout
          *
          * @hide
@@ -3126,6 +3133,12 @@ public final class Settings {
         public static final int STATUS_BAR_COLLAPSE_IF_NO_CLEARABLE = 2;
 
         /**
+         * Whether to scramble a pin unlock layout
+         * @hide
+         */
+        public static final String LOCKSCREEN_PIN_SCRAMBLE_LAYOUT = "lockscreen_scramble_pin_layout";
+
+        /**
          * Whether to use the custom quick unlock screen control
          * @hide
          */
@@ -3307,6 +3320,11 @@ public final class Settings {
          * @hide
          */
         public static final String EXPANDED_DESKTOP_STATE = "expanded_desktop_state";
+
+        /**
+         * @hide
+         */
+        public static final String PROXIMITY_ON_WAKE = "proximity_on_wake";
 
         /**
          * Expanded desktop style (with status bar or without status bar)
@@ -3692,6 +3710,24 @@ public final class Settings {
         public static final String VOICE_LAUNCH_INTENT = "voice_launch_intent";
 
         /**
+         * Locale for secondary overlay on dialer for t9 search input
+         * @hide
+         */
+        public static final String T9_SEARCH_INPUT_LOCALE = "t9_search_input_locale";
+
+        /**
+         * The style of the incoming call screen.
+         * Default is {@link INCOMING_CALL_STYLE_FULLSCREEN_PHOTO}.
+         * @hide
+         */
+        public static final String INCOMING_CALL_STYLE = "incoming_call_style";
+
+        /** @hide */
+        public static final int INCOMING_CALL_STYLE_CLASSIC = 0;
+        /** @hide */
+        public static final int INCOMING_CALL_STYLE_FULLSCREEN_PHOTO = 1;
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
@@ -3792,6 +3828,7 @@ public final class Settings {
             PHONE_BLACKLIST_PRIVATE_NUMBER_MODE,
             PHONE_BLACKLIST_UNKNOWN_NUMBER_MODE,
             PHONE_BLACKLIST_REGEX_ENABLED,
+            INCOMING_CALL_STYLE,
         };
 
         // Settings moved to Settings.Secure

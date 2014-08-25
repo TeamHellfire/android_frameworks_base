@@ -84,6 +84,7 @@ public class NavigationBarView extends LinearLayout {
     private LockPatternUtils mLockUtils;
     private OnClickListener mRecentsClickListener;
     private OnTouchListener mRecentsPreloadListener;
+    private OnLongClickListener mRecentsLongClickListener;
     private OnTouchListener mHomeSearchActionListener;
 
     final Display mDisplay;
@@ -324,9 +325,11 @@ public class NavigationBarView extends LinearLayout {
     }
 
     /* package */ void setListeners(OnClickListener recentsClickListener,
-            OnTouchListener recentsPreloadListener, OnTouchListener homeSearchActionListener) {
+            OnTouchListener recentsPreloadListener, OnLongClickListener recentsLongClickListener,
+            OnTouchListener homeSearchActionListener) {
         mRecentsClickListener = recentsClickListener;
         mRecentsPreloadListener = recentsPreloadListener;
+        mRecentsLongClickListener = recentsLongClickListener;
         mHomeSearchActionListener = homeSearchActionListener;
         updateButtonListeners();
     }
@@ -339,6 +342,7 @@ public class NavigationBarView extends LinearLayout {
             if (button instanceof KeyButtonView) {
                 button.setOnClickListener(null);
                 button.setOnTouchListener(null);
+                button.setOnLongClickListener(null);
             }
         }
     }
@@ -348,6 +352,7 @@ public class NavigationBarView extends LinearLayout {
         if (recentView != null) {
             recentView.setOnClickListener(mRecentsClickListener);
             recentView.setOnTouchListener(mRecentsPreloadListener);
+            recentView.setOnLongClickListener(mRecentsLongClickListener);
         }
         View homeView = findButton(NavbarEditor.NAVBAR_HOME);
         if (homeView != null) {
@@ -357,8 +362,16 @@ public class NavigationBarView extends LinearLayout {
 
     private void setButtonVisibility(NavbarEditor.ButtonInfo info, boolean visible) {
         View findView = findButton(info);
-        if (findView != null) {
-            findView.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        if (findView == null) {
+            return;
+        }
+        int visibility = visible ? View.VISIBLE : View.INVISIBLE;
+        if (mSlotOneVisibility != -1 && findView.getId() == R.id.one) {
+            mSlotOneVisibility = visibility;
+        } else if (mSlotSixVisibility != -1 && findView.getId() == R.id.six) {
+            mSlotSixVisibility = visibility;
+        } else {
+            findView.setVisibility(visibility);
         }
     }
 
@@ -531,9 +544,11 @@ public class NavigationBarView extends LinearLayout {
             } else {
                 if (mSlotOneVisibility != -1) {
                     one.setVisibility(mSlotOneVisibility);
+                    mSlotOneVisibility = -1;
                 }
                 if (mSlotSixVisibility != -1) {
                     six.setVisibility(mSlotSixVisibility);
+                    mSlotSixVisibility = -1;
                 }
             }
         }
@@ -719,6 +734,7 @@ public class NavigationBarView extends LinearLayout {
 
     public void setLeftInLandscape(boolean leftInLandscape) {
         mLeftInLandscape = leftInLandscape;
+        mBarTransitions.setLeftIfVertical(leftInLandscape);
         mDeadZone.setStartFromRight(leftInLandscape);
     }
 
@@ -953,15 +969,15 @@ public class NavigationBarView extends LinearLayout {
             // restore previous views in case the cursor keys WERE showing and
             // are should now be hidden while the IME is up.
             View one = getCurrentView().findViewById(mVertical ? R.id.six : R.id.one);
-            View capricaSix = getCurrentView().findViewById(mVertical ? R.id.one : R.id.six);
+            View six = getCurrentView().findViewById(mVertical ? R.id.one : R.id.six);
             if (mSlotOneVisibility != -1 && one != null) {
                 one.setVisibility(mSlotOneVisibility);
+                mSlotOneVisibility = -1;
             }
-            if (mSlotSixVisibility != -1 && capricaSix != null) {
-                capricaSix.setVisibility(mSlotSixVisibility);
+            if (mSlotSixVisibility != -1 && six != null) {
+                six.setVisibility(mSlotSixVisibility);
+                mSlotSixVisibility = -1;
             }
-            mSlotOneVisibility = -1;
-            mSlotSixVisibility = -1;
 
             // propogate settings
             setNavigationIconHints(mNavigationIconHints, true);
